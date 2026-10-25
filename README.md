@@ -2,7 +2,7 @@
 
 **A real-time firewall for AI agents.** Team 52 · AI Applications Hackathon · Applied AI Microcredential Program
 
-By [Vraj Soni](https://github.com/vrajpsoni) and Agatsya Patel.
+By [Vraj Soni](https://github.com/vrajpsoni) and [Agatsya Patel](https://github.com/AgatsyaPatel).
 
 AgentGate sits between an AI agent and its tools. It checks every proposed tool call against the user's original intent and your organization's policies, then returns **allow**, **block** or **ask a human**, with a reason and the policy it cited.
 
@@ -175,8 +175,8 @@ Next: adaptive attacks written against the monitor, a larger benchmark, checking
 
 | Member | Role |
 |---|---|
-| Vraj Soni | System lead: proxy, agents, policy store, documentation |
-| Agatsya Patel | Evaluation lead: benchmark, harness, results, demo video |
+| [Vraj Soni](https://github.com/vrajpsoni) | System lead: proxy, agents, policy store, documentation |
+| [Agatsya Patel](https://github.com/AgatsyaPatel) | Evaluation lead: benchmark, harness, results, demo video |
 
 ## License
 
