@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentGate Live Demo</title>
+<style>
+  :root {
+    --bg:#F4F7FA; --panel:#FFFFFF; --ink:#0B1F33; --muted:#4A5B6C; --line:#D5DEE6;
+    --navy:#0B1F33; --teal:#12A594; --red:#D64545; --amber:#F2A541;
+    --teal-bg:#E6F5F2; --red-bg:#FDECEC; --amber-bg:#FFF3D6; --code:#0B1F33; --codeink:#9AE6D8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#08141F; --panel:#0F2234; --ink:#EAF1F8; --muted:#9FB2C4; --line:#223A50;
+            --teal-bg:#0E3A36; --red-bg:#3F1C1F; --amber-bg:#40300F; --code:#06101A; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 Calibri, "Segoe UI", system-ui, sans-serif; }
+  header { background:var(--navy); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  header h1 { margin:0; font:700 26px Cambria, Georgia, serif; }
+  header .tag { color:var(--amber); font-weight:700; letter-spacing:.12em; font-size:13px; }
+  header .spacer { flex:1; }
+  nav { display:flex; gap:4px; padding:10px 24px 0; }
+  nav button { background:none; border:0; padding:8px 16px; font:inherit; font-weight:700; color:var(--muted); border-bottom:3px solid transparent; cursor:pointer; }
+  nav button.active { color:var(--ink); border-color:var(--teal); }
+  main { padding:16px 24px 40px; max-width:1400px; margin:0 auto; }
+  .scripts { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
+  .scripts .label { font-weight:700; color:var(--muted); }
+  button.step { background:var(--panel); border:2px solid var(--line); border-radius:10px; padding:10px 14px; font:inherit; font-weight:700; color:var(--ink); cursor:pointer; }
+  button.step:hover { border-color:var(--teal); }
+  button.step small { display:block; font-weight:400; color:var(--muted); }
+  .grid { display:grid; grid-template-columns: 1fr 1.1fr; gap:16px; }
+  @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .card h2 { margin:0 0 10px; font:700 18px Cambria, Georgia, serif; }
+  label.f { display:block; font-weight:700; color:var(--muted); font-size:13px; margin:10px 0 4px; text-transform:uppercase; letter-spacing:.06em; }
+  select { width:100%; padding:9px; font:inherit; border:1px solid var(--line); border-radius:8px; background:var(--panel); color:var(--ink); }
+  .box { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; white-space:pre-wrap; word-break:break-word; min-height:44px; }
+  .box.bad { background:var(--red-bg); border-color:var(--red); }
+  pre.code { background:var(--code); color:var(--codeink); padding:12px; border-radius:8px; overflow:auto; margin:0; font:14px/1.45 Consolas, "Courier New", monospace; white-space:pre-wrap; word-break:break-word; }
+  .controls { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:14px; }
+  .toggle { display:inline-flex; border:2px solid var(--navy); border-radius:999px; overflow:hidden; }
+  .toggle button { border:0; padding:10px 20px; font:inherit; font-weight:800; cursor:pointer; background:var(--panel); color:var(--ink); }
+  .toggle button.sel-off { background:var(--red); color:#fff; }
+  .toggle button.sel-on { background:var(--teal); color:#fff; }
+  .mode { display:flex; align-items:center; gap:8px; }
+  .mode select { width:auto; }
+  button.run { background:var(--navy); color:#fff; border:0; border-radius:10px; padding:12px 22px; font:inherit; font-weight:800; font-size:17px; cursor:pointer; }
+  button.run:disabled { opacity:.5; cursor:wait; }
+  .decision { border-radius:12px; padding:18px; border:3px solid var(--line); background:var(--bg); transition:background .2s,border-color .2s; }
+  .decision.allow { background:var(--teal-bg); border-color:var(--teal); }
+  .decision.block { background:var(--red-bg); border-color:var(--red); }
+  .decision.ask_human { background:var(--amber-bg); border-color:var(--amber); }
+  .decision.off { background:var(--red-bg); border-color:var(--red); }
+  .decision .big { font:800 40px Cambria, Georgia, serif; letter-spacing:.02em; }
+  .decision.allow .big { color:var(--teal); } .decision.block .big, .decision.off .big { color:var(--red); } .decision.ask_human .big { color:#B7791F; }
+  .kv { display:grid; grid-template-columns: 130px 1fr; gap:6px 12px; margin-top:12px; }
+  .kv div:nth-child(odd) { color:var(--muted); font-weight:700; }
+  .executed { margin-top:12px; padding:10px 12px; border-radius:8px; font-weight:800; font-size:18px; }
+  .executed.yes { background:var(--red-bg); color:var(--red); }
+  .executed.no { background:var(--teal-bg); color:var(--teal); }
+  .executed.neutral { background:var(--bg); color:var(--muted); }
+  .approve { display:flex; gap:10px; margin-top:12px; }
+  .approve button { flex:1; padding:12px; font:inherit; font-weight:800; border:0; border-radius:8px; color:#fff; cursor:pointer; }
+  .approve .ok { background:var(--teal); } .approve .no { background:var(--red); }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  .d-allow { color:var(--teal); font-weight:800; } .d-block, .d-rejected { color:var(--red); font-weight:800; } .d-ask_human { color:#B7791F; font-weight:800; } .d-approved { color:var(--teal); font-weight:800; }
+  .err { background:var(--red-bg); color:var(--red); border:1px solid var(--red); border-radius:8px; padding:10px; margin-top:12px; font-weight:700; }
+  .hidden { display:none; }
+  .muted { color:var(--muted); }
+  .results table td:first-child { font-weight:700; }
+  .reset { background:none; border:1px solid var(--line); border-radius:8px; padding:6px 12px; color:var(--muted); cursor:pointer; font:inherit; }
+  .steps { display:flex; flex-direction:column; gap:10px; }
+  .stepcard { border:2px solid var(--line); border-radius:10px; padding:12px; background:var(--bg); }
+  .stepcard.allow { border-color:var(--teal); } .stepcard.block, .stepcard.off-ran { border-color:var(--red); } .stepcard.ask_human { border-color:var(--amber); }
+  .stepcard .head { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:6px; }
+  .stepcard .n { color:var(--muted); font-weight:700; font-size:13px; }
+  .badge { font-weight:800; font-size:13px; padding:2px 9px; border-radius:999px; color:#fff; background:var(--muted); }
+  .badge.allow { background:var(--teal); } .badge.block, .badge.rejected { background:var(--red); } .badge.ask_human { background:var(--amber); color:#3a2a00; } .badge.approved { background:var(--teal); }
+  .stepcard pre.code { font-size:13px; }
+  .stepcard .why { margin-top:6px; font-size:14px; }
+  .working { color:var(--muted); font-weight:700; padding:10px 0; }
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">TEAM 52</span>
+  <h1>AgentGate</h1>
+  <span class="muted" style="color:#cfe0f0">A real-time firewall for AI agents</span>
+  <span class="spacer"></span>
+</header>
+<nav>
+  <button class="active" data-tab="demo">Demo</button>
+  <button data-tab="agent">Live agent</button>
+  <button data-tab="results">Results</button>
+</nav>
+<main>
+<section id="tab-demo">
+  <div class="scripts">
+    <span class="label">Demo script:</span>
+    <button class="step" data-case="BN-03" data-gate="on"><span>1. Normal task</span><small>Gate ON · $20 refund</small></button>
+    <button class="step" data-case="II-01" data-gate="off"><span>2. Attack, gate OFF</span><small>Poisoned ticket</small></button>
+    <button class="step" data-case="II-01" data-gate="on"><span>3. Attack, gate ON</span><small>Same ticket</small></button>
+    <button class="step" data-case="BN-07" data-gate="on"><span>4. Borderline case</span><small>$600 refund, human approval</small></button>
+    <span class="spacer" style="flex:1"></span>
+    <button class="reset" id="resetBtn">Reset log</button>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>1. What the agent sees</h2>
+      <label class="f" for="caseSel">Test case</label>
+      <select id="caseSel"></select>
+      <label class="f">User task (trusted)</label>
+      <div class="box" id="userTask"></div>
+      <label class="f">Content the agent read (untrusted)</label>
+      <div class="box" id="untrusted"></div>
+      <label class="f">Tool call the agent wants to make</label>
+      <pre class="code" id="call"></pre>
+      <div class="controls">
+        <div class="toggle" role="group" aria-label="Gate">
+          <button id="gateOff">Gate OFF</button><button id="gateOn">Gate ON</button>
+        </div>
+        <div class="mode"><label for="modeSel" class="muted">Monitor</label>
+          <select id="modeSel"></select></div>
+        <button class="run" id="runBtn">Run agent</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>2. AgentGate decision</h2>
+      <div class="decision" id="decision"><div class="big">Ready</div><div class="muted">Pick a case and press Run agent.</div></div>
+      <div id="detail" class="hidden">
+        <div class="kv">
+          <div>Reason</div><div id="reason"></div>
+          <div>Policy cited</div><div id="policy"></div>
+          <div>Monitor</div><div id="monitor"></div>
+          <div>Latency</div><div id="latency"></div>
+          <div>Expected</div><div id="expected"></div>
+        </div>
+        <div class="executed neutral" id="executed"></div>
+        <div class="approve hidden" id="approveBox">
+          <button class="ok" id="approveBtn">Approve</button><button class="no" id="rejectBtn">Reject</button>
+        </div>
+      </div>
+      <div class="err hidden" id="err"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>3. Audit log</h2>
+    <table><thead><tr><th>Time</th><th>Case</th><th>Gate</th><th>Tool</th><th>Decision</th><th>Ran?</th><th>Latency</th><th>Reason</th></tr></thead>
+    <tbody id="auditBody"></tbody></table>
+    <div class="muted" id="auditEmpty">No actions yet.</div>
+  </div>
+</section>
+
+<section id="tab-agent" class="hidden">
+  <div class="grid">
+    <div class="card">
+      <h2>1. Give the agent a job</h2>
+      <label class="f" for="scSel">Scenario</label>
+      <select id="scSel"></select>
+      <div class="muted" id="scDesc" style="margin-top:6px"></div>
+      <label class="f">Task from the support operator (trusted)</label>
+      <div class="box" id="scTask"></div>
+      <label class="f">Ticket the agent will read (untrusted)</label>
+      <div class="box" id="scTicket"></div>
+      <div class="controls">
+        <div class="toggle" role="group" aria-label="Gate">
+          <button id="aGateOff">Gate OFF</button><button id="aGateOn">Gate ON</button>
+        </div>
+        <div class="mode"><label for="aModeSel" class="muted">Monitor</label>
+          <select id="aModeSel"><option value="live">Live Claude</option><option value="keyword">Keyword filter</option></select></div>
+        <button class="run" id="aRunBtn">Run agent</button>
+      </div>
+      <div class="muted" style="margin-top:10px">The agent is a Claude tool-use loop: it reads the ticket, decides which tools to call, and every call goes through AgentGate first. All tools are simulated.</div>
+    </div>
+    <div class="card">
+      <h2>2. What the agent did</h2>
+      <div class="muted" id="aExpect"></div>
+      <div id="aWorking" class="working hidden">Agent working... each step is a live Claude call.</div>
+      <div class="steps" id="aSteps" style="margin-top:10px"></div>
+      <label class="f hidden" id="aFinalLabel">Agent's final report</label>
+      <div class="box hidden" id="aFinal"></div>
+      <div class="err hidden" id="aErr"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-results" class="hidden">
+  <div class="card results">
+    <h2>Benchmark results</h2>
+    <div id="resultsBody" class="muted">Loading...</div>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let cases = [], gate = "on", currentRun = null, busy = false;
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+function el(tag, text, cls) { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; }
+
+function setGate(g) {
+  gate = g;
+  $("gateOff").className = g === "off" ? "sel-off" : "";
+  $("gateOn").className = g === "on" ? "sel-on" : "";
+  $("modeSel").disabled = g === "off";
+}
+
+function showCase() {
+  const c = cases.find((x) => x.id === $("caseSel").value);
+  if (!c) return;
+  $("userTask").textContent = c.user_task;
+  const u = $("untrusted"); u.textContent = c.untrusted_input || "(none)";
+  u.className = "box" + (c.untrusted_input && c.kind === "attack" ? " bad" : "");
+  $("call").textContent = c.proposed_call.tool + "(\n" + Object.entries(c.proposed_call.args).map(([k, v]) => "  " + k + "=" + JSON.stringify(v)).join(",\n") + "\n)";
+}
+
+function clearResult() {
+  $("decision").className = "decision"; $("decision").replaceChildren(el("div", "Ready", "big"), el("div", "Pick a case and press Run agent.", "muted"));
+  $("detail").classList.add("hidden"); $("err").classList.add("hidden"); currentRun = null;
+}
+
+function renderResult(r) {
+  const d = r.decision, off = r.gate === "off";
+  const cls = off ? "off" : d.decision;
+  const label = off ? "NO GATE" : ({ allow: "ALLOW", block: "BLOCK", ask_human: "ASK HUMAN" }[d.decision] || d.decision);
+  $("decision").className = "decision " + cls;
+  $("decision").replaceChildren(el("div", label, "big"), el("div", off ? "Gate is off: every tool call runs." : "", "muted"));
+  $("reason").textContent = off ? "AgentGate disabled" : (d.reason || "-");
+  $("policy").textContent = (d.policy_cited && d.policy_cited.length ? d.policy_cited : d.retrieved || []).join(", ") || "-";
+  $("monitor").textContent = { off: "none", replay: "recorded real decision (replay)", live: "live Claude call", keyword: "keyword filter (offline baseline)" }[r.gate];
+  $("latency").textContent = off ? "-" : Math.round(d.latency_ms) + " ms";
+  $("expected").textContent = r.expected.replace("_", " ");
+  const ex = $("executed");
+  if (r.needs_human) { ex.className = "executed neutral"; ex.textContent = "Waiting for a human decision..."; }
+  else if (r.executed) { ex.className = "executed " + (off || r.expected === "block" ? "yes" : "neutral"); ex.textContent = "Tool executed: YES" + (r.expected === "block" ? "  (harmful action went through)" : ""); }
+  else { ex.className = "executed no"; ex.textContent = "Tool executed: NO  (blocked before it ran)"; }
+  $("approveBox").classList.toggle("hidden", !r.needs_human);
+  $("detail").classList.remove("hidden"); $("err").classList.add("hidden");
+  currentRun = r.run_id;
+}
+
+function showError(msg) { $("err").textContent = msg; $("err").classList.remove("hidden"); }
+
+async function run() {
+  if (busy) return; busy = true; $("runBtn").disabled = true;
+  try { renderResult(await api("/api/run", { case_id: $("caseSel").value, gate, mode: $("modeSel").value })); }
+  catch (e) { showError(e.message); }
+  finally { busy = false; $("runBtn").disabled = false; loadAudit(); }
+}
+
+async function decide(ok) {
+  if (!currentRun) return;
+  try {
+    const r = await api("/api/approve", { run_id: currentRun, approve: ok });
+    $("approveBox").classList.add("hidden");
+    const ex = $("executed");
+    ex.className = "executed " + (ok ? "neutral" : "no");
+    ex.textContent = ok ? "Human APPROVED. Tool executed." : "Human REJECTED. Tool did not run.";
+    $("decision").className = "decision " + (ok ? "allow" : "block");
+    $("decision").firstChild.textContent = ok ? "APPROVED" : "REJECTED";
+  } catch (e) { showError(e.message); }
+  loadAudit();
+}
+
+async function loadAudit() {
+  const rows = await api("/api/audit");
+  const body = $("auditBody"); body.replaceChildren();
+  $("auditEmpty").classList.toggle("hidden", rows.length > 0);
+  rows.slice().reverse().forEach((a) => {
+    const tr = el("tr");
+    [a.ts, a.case, a.gate, a.tool].forEach((v) => tr.appendChild(el("td", v)));
+    tr.appendChild(el("td", a.decision.replace("_", " "), "d-" + a.decision));
+    tr.appendChild(el("td", a.executed ? "yes" : "no"));
+    tr.appendChild(el("td", a.latency_ms ? Math.round(a.latency_ms) + " ms" : "-"));
+    tr.appendChild(el("td", a.reason));
+    body.appendChild(tr);
+  });
+}
+
+function mdTable(md) {
+  const wrap = el("div");
+  const lines = md.split("\n"); let i = 0;
+  while (i < lines.length) {
+    if (lines[i].startsWith("|")) {
+      const rows = [];
+      while (i < lines.length && lines[i].startsWith("|")) { const cells = lines[i].replace(/^\||\|$/g, "").split("|").map((c) => c.trim()); if (!cells.every((c) => /^-+$/.test(c))) rows.push(cells); i++; }
+      const t = el("table"), thead = el("thead"), tb = el("tbody");
+      const hr = el("tr"); rows[0].forEach((c) => hr.appendChild(el("th", c))); thead.appendChild(hr);
+      rows.slice(1).forEach((r) => { const tr = el("tr"); r.forEach((c) => tr.appendChild(el("td", c))); tb.appendChild(tr); });
+      t.append(thead, tb); wrap.appendChild(t);
+    } else { if (lines[i].trim()) wrap.appendChild(el("p", lines[i].replace(/^- /, "• "))); i++; }
+  }
+  return wrap;
+}
+
+async function loadResults() {
+  const { markdown } = await api("/api/results");
+  $("resultsBody").replaceChildren(markdown ? mdTable(markdown) : el("span", "No results yet. Run: python -m eval.run_benchmark", "muted"));
+}
+
+async function init() {
+  cases = await api("/api/cases");
+  const sel = $("caseSel");
+  cases.forEach((c) => { const o = el("option", c.id + "  " + (c.kind === "attack" ? "[attack] " : "[benign] ") + c.description); o.value = c.id; sel.appendChild(o); });
+  const st = await api("/api/status");
+  const modes = [["replay", "Replay (recorded real decisions)", st.replay], ["live", "Live Claude (" + st.model + ")", st.live], ["keyword", "Keyword filter (offline)", true]];
+  const ms = $("modeSel");
+  modes.forEach(([v, t, ok]) => { const o = el("option", t + (ok ? "" : " - unavailable")); o.value = v; o.disabled = !ok; ms.appendChild(o); });
+  ms.value = st.replay ? "replay" : st.live ? "live" : "keyword";
+  sel.value = "II-01"; showCase(); setGate("on"); loadAudit();
+}
+
+$("caseSel").addEventListener("change", () => { showCase(); clearResult(); });
+$("gateOff").addEventListener("click", () => setGate("off"));
+$("gateOn").addEventListener("click", () => setGate("on"));
+$("runBtn").addEventListener("click", run);
+$("approveBtn").addEventListener("click", () => decide(true));
+$("rejectBtn").addEventListener("click", () => decide(false));
+$("resetBtn").addEventListener("click", async () => { await api("/api/reset", {}); clearResult(); loadAudit(); });
+document.querySelectorAll("button.step").forEach((b) => b.addEventListener("click", () => {
+  $("caseSel").value = b.dataset.case; showCase(); setGate(b.dataset.gate); clearResult(); run();
+}));
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("active", x === b));
+  ["demo", "agent", "results"].forEach((t) => $("tab-" + t).classList.toggle("hidden", b.dataset.tab !== t));
+  if (b.dataset.tab === "results") loadResults();
+}));
+init().catch((e) => showError(e.message));
+
+// ---- Live agent tab
+let scenarios = [], aGate = "on", aBusy = false;
+const LABEL = { allow: "ALLOW", block: "BLOCK", ask_human: "ASK HUMAN" };
+
+function setAGate(g) {
+  aGate = g;
+  $("aGateOff").className = g === "off" ? "sel-off" : "";
+  $("aGateOn").className = g === "on" ? "sel-on" : "";
+  $("aModeSel").disabled = g === "off";
+}
+
+function showScenario() {
+  const s = scenarios.find((x) => x.id === $("scSel").value);
+  if (!s) return;
+  $("scDesc").textContent = s.description;
+  $("scTask").textContent = s.task;
+  $("scTicket").textContent = Object.values(s.files).join("\n\n");
+  $("aExpect").textContent = "Expected: " + s.expect;
+  $("aSteps").replaceChildren(); $("aErr").classList.add("hidden");
+  $("aFinal").classList.add("hidden"); $("aFinalLabel").classList.add("hidden");
+}
+
+function stepCard(st, i, gateUsed) {
+  const off = gateUsed === "off", d = st.decision;
+  const card = el("div", undefined, "stepcard " + (off ? (st.executed ? "off-ran" : "") : d.decision));
+  const head = el("div", undefined, "head");
+  head.append(el("span", "Step " + (i + 1), "n"));
+  head.append(el("span", off ? "NO GATE" : (LABEL[d.decision] || d.decision), "badge " + (off ? "" : d.decision)));
+  const ran = el("span", st.executed ? "Tool ran" : (st.needs_human ? "Waiting for a human" : "Tool did NOT run"), "muted");
+  head.append(ran);
+  card.append(head);
+  card.append(el("pre", st.tool + "(\n" + Object.entries(st.args).map(([k, v]) => "  " + k + "=" + JSON.stringify(v)).join(",\n") + "\n)", "code"));
+  if (!off) {
+    const pol = (d.policy_cited && d.policy_cited.length ? d.policy_cited : d.retrieved || []).join(", ");
+    card.append(el("div", d.reason + (pol ? "  [" + pol + "]" : "") + "  (" + Math.round(d.latency_ms) + " ms)", "why"));
+  }
+  if (st.needs_human) {
+    const box = el("div", undefined, "approve");
+    const ok = el("button", "Approve", "ok"), no = el("button", "Reject", "no");
+    const decideStep = async (yes) => {
+      try {
+        await api("/api/approve", { run_id: st.run_id, approve: yes });
+        box.remove();
+        head.children[1].textContent = yes ? "APPROVED" : "REJECTED";
+        head.children[1].className = "badge " + (yes ? "approved" : "rejected");
+        ran.textContent = yes ? "Human approved. Tool ran." : "Human rejected. Tool did not run.";
+      } catch (e) { $("aErr").textContent = e.message; $("aErr").classList.remove("hidden"); }
+      loadAudit();
+    };
+    ok.addEventListener("click", () => decideStep(true)); no.addEventListener("click", () => decideStep(false));
+    box.append(ok, no); card.append(box);
+  }
+  return card;
+}
+
+async function runAgent() {
+  if (aBusy) return; aBusy = true; $("aRunBtn").disabled = true;
+  showScenario(); $("aWorking").classList.remove("hidden");
+  try {
+    const r = await api("/api/agent", { scenario_id: $("scSel").value, gate: aGate, mode: $("aModeSel").value });
+    $("aSteps").replaceChildren(...r.steps.map((st, i) => stepCard(st, i, r.gate)));
+    if (!r.steps.length) $("aSteps").append(el("div", "The agent made no tool calls.", "muted"));
+    if (r.final_text) { $("aFinal").textContent = r.final_text; $("aFinal").classList.remove("hidden"); $("aFinalLabel").classList.remove("hidden"); }
+    if (r.error) { $("aErr").textContent = "Agent: " + r.error; $("aErr").classList.remove("hidden"); }
+  } catch (e) { $("aErr").textContent = e.message; $("aErr").classList.remove("hidden"); }
+  finally { aBusy = false; $("aRunBtn").disabled = false; $("aWorking").classList.add("hidden"); loadAudit(); }
+}
+
+(async () => {
+  scenarios = await api("/api/scenarios");
+  scenarios.forEach((s) => { const o = el("option", s.id + "  " + s.title); o.value = s.id; $("scSel").appendChild(o); });
+  setAGate("on"); showScenario();
+  const st = await api("/api/status");
+  if (!st.live) { $("aRunBtn").disabled = true; $("aErr").textContent = "The live agent needs the Claude API key in the server's environment."; $("aErr").classList.remove("hidden"); }
+})().catch((e) => { $("aErr").textContent = e.message; $("aErr").classList.remove("hidden"); });
+$("scSel").addEventListener("change", showScenario);
+$("aGateOff").addEventListener("click", () => setAGate("off"));
+$("aGateOn").addEventListener("click", () => setAGate("on"));
+$("aRunBtn").addEventListener("click", runAgent);
+</script>
+</body>
+</html>
