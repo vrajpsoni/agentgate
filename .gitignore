@@ -14,24 +14,13 @@ __pycache__/
 audit.jsonl
 replay.json
 
-# Earlier benchmark runs; only the reported run is published
+# Only the reported benchmark run is published
 results/*.json
 !results/results-20261025-134723.json
 
-# Team working files kept locally, not part of the code release
-submission protocol/
-demo-parts/
-DEMO_GUIDE.md
-SETUP.md
-SUBMISSION_CHECKLIST.md
+# Team working files (documents, slides, notes), kept locally
+team-files/
 *.docx
 *.pptx
-build_all.js
-build_deck.js
-build_docx.js
-md2docx.js
-config.js
-package.json
-package-lock.json
-deliverables/
 *.pdf
+~$*
