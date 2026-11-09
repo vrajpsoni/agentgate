@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentGate Live Demo</title>
+<meta name="description" content="AgentGate: a real-time firewall for AI agent tool calls. Team 52 live demo.">
+<style>
+  :root { --bg:#f5f7fb; --ink:#0f1f45; --muted:#4a5878; --card:#fff; --accent:#16a394; --line:#dde3ee; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b1324; --ink:#eef2fa; --muted:#a9b4cc; --card:#121c33; --accent:#2fc4b2; --line:#24304a; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { background:#0f1f45; color:#fff; padding:28px 16px; }
+  header .wrap, main { max-width:1040px; margin:0 auto; }
+  .tag { color:#f5a623; font-weight:700; letter-spacing:.12em; font-size:13px; }
+  h1 { margin:6px 0 4px; font-size:clamp(30px,5vw,44px); }
+  header p { margin:0; opacity:.9; }
+  main { padding:24px 16px 48px; }
+  video { width:100%; border-radius:12px; background:#000; box-shadow:0 8px 30px rgba(0,0,0,.18); display:block; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin-top:22px; }
+  .card h2 { margin:0 0 8px; font-size:20px; }
+  ul { margin:0; padding-left:20px; color:var(--muted); }
+  a { color:var(--accent); font-weight:600; }
+  .links { display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+  .btn { display:inline-block; padding:10px 16px; border-radius:999px; border:2px solid var(--accent); text-decoration:none; }
+  footer { color:var(--muted); font-size:14px; margin-top:28px; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="tag">TEAM 52</div>
+  <h1>AgentGate</h1>
+  <p>A real-time firewall for AI agent tool calls</p>
+</div></header>
+<main>
+  <video controls playsinline preload="metadata" poster="demo-thumbnail.png">
+    <source src="AgentGate_Live_Demo.mp4" type="video/mp4">
+    Your browser can't play this video. <a href="AgentGate_Live_Demo.mp4">Download it here</a>.
+  </video>
+
+  <div class="card">
+    <h2>What the demo shows</h2>
+    <ul>
+      <li>A normal $20 refund is allowed.</li>
+      <li>A poisoned customer ticket leaks customer data when the gate is off, and is blocked when the gate is on, with the policies it breaks cited.</li>
+      <li>A $600 refund is paused until a person approves it.</li>
+      <li>Every decision is saved in an audit log.</li>
+      <li>A live Claude worker agent handles a ticket with every tool call checked.</li>
+      <li>Benchmark: 30 attacks. No defense let all 30 through, a keyword filter 20, AgentGate 0.</li>
+    </ul>
+    <p style="color:var(--muted);margin:12px 0 0">Every decision in the video is a real, live Claude call. The tools are simulated, so nothing real is sent.</p>
+  </div>
+
+  <div class="links">
+    <a class="btn" href="https://github.com/vrajpsoni/agentgate">Source code on GitHub</a>
+    <a class="btn" href="https://github.com/vrajpsoni/agentgate/blob/main/results/latest.md">Benchmark results</a>
+  </div>
+
+  <footer>By Vraj Soni and Agatsya Patel · AI Applications Hackathon, Paul English Applied AI Institute, UMass Boston</footer>
+</main>
+</body>
+</html>
