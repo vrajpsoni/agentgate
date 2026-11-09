@@ -6,6 +6,14 @@ By [Vraj Soni](https://github.com/vrajpsoni) and [Agatsya Patel](https://github.
 
 AgentGate sits between an AI agent and its tools. It checks every proposed tool call against the user's original intent and your organization's policies, then returns **allow**, **block** or **ask a human**, with a reason and the policy it cited.
 
+## Demo video
+
+[![AgentGate blocking a poisoned customer ticket](docs/demo-thumbnail.png)](docs/AgentGate_Live_Demo.mp4)
+
+**[Watch the 2-minute live demo](docs/AgentGate_Live_Demo.mp4)** (captioned). Every decision in it is a real, live Claude call; the tools are simulated. It shows a normal refund being allowed, a poisoned ticket leaking data with the gate off and being blocked with the gate on, a $600 refund waiting for human approval, the audit log, the live worker agent, and the benchmark results.
+
+To run the demo yourself, see [Setup](#setup).
+
 ## The problem
 
 Agents now send email, issue refunds and edit files. A single poisoned input, such as a web page or customer ticket containing hidden instructions, can redirect an agent into leaking data. Even without an attack, an agent that faithfully follows a request can break company rules it does not know about. Text filters check words, not actions, so the harmful call goes unnoticed.
@@ -147,6 +155,7 @@ benchmark/
   agent_scenarios.json   4 live-agent scenarios
   make_benchmark.py      regenerates cases.json and policies.json
   README.md              case format and scoring
+docs/                    demo video and thumbnail
 eval/run_benchmark.py    runs every configuration and computes the metrics
 results/                 the reported benchmark run
 tests/                   offline unit tests
